@@ -1,4 +1,4 @@
-.chart {	
+.chart {
 	font-family: 'Arial';
 	font-size: 13px;
 	color: #000;
@@ -27,9 +27,8 @@
 	 fill: none;
 	 /*fill: rgba(0,0,0,0.1);*/
 }
-.chart > .grid .tick {
+.chart > .grid .tick line {
     stroke: #eee;
-    opacity: 0.5;
 }
 
 /* For aesthetics only ------------------------------------------------------------------*/

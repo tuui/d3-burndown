@@ -11,19 +11,19 @@ function initChart() {
 		'y': 200
 	}, {
 		'x': 10,
-		'y': 50
+		'y': 130
 	}, {
 		'x': 20,
-		'y': 180
-	}, {
-		'x': 30,
-		'y': 60
-	}, {
-		'x': 40,
 		'y': 120
 	}, {
+		'x': 30,
+		'y': 80
+	}, {
+		'x': 40,
+		'y': 36
+	}, {
 		'x': 50,
-		'y': 30
+		'y': 0
 	}];
 
 	var svg = d3.select("#visualisation"),
@@ -48,37 +48,33 @@ function initChart() {
 			return d.y;
 		}),
 
-    xRange = d3.scale.linear().range([margins.left, width - margins.right]).domain([
+    xRange = d3.scaleLinear().range([margins.left, width - margins.right]).domain([
 
 		xMin,xMax
     ]),
 
-	yRange = d3.scale.linear().range([height - margins.top, margins.bottom]).domain([
+	yRange = d3.scaleLinear().range([height - margins.top, margins.bottom]).domain([
 	
 		yMin,yMax		
 	]),
 
-	xAxis = d3.svg.axis()
-		.scale(xRange)
-		.tickSubdivide(true),
+	xAxis = d3.axisBottom(xRange)
+		/*.tickSubdivide(true)*/,
 	
-	yAxis = d3.svg.axis()
-		.scale(yRange)
-		.orient("left")
-		.tickSubdivide(true);
+	yAxis = d3.axisLeft(yRange)
+		/*.orient("left")
+		.tickSubdivide(true)*/;
 		
 	function make_x_axis() {        
-		return d3.svg.axis()
-			.scale(xRange)
-			 .orient("bottom")
-			.tickSubdivide(true)
+		return d3.axisBottom(xRange)
+			 /*.orient("bottom")
+			.tickSubdivide(true)*/
 	}
 	
 	function make_y_axis() {        
-		return d3.svg.axis()
-			.scale(yRange)
-			.orient("left")
-			.tickSubdivide(true)
+		return d3.axisLeft(yRange)
+			/*.orient("left")
+			.tickSubdivide(true)*/
 	}
 	
 	
@@ -110,14 +106,14 @@ function initChart() {
 		
 		
 
-	var lineFunc = d3.svg.line()
+	var lineFunc = d3.line()
 		.x(function (d) {
 			return xRange(d.x);
 		})
 		.y(function (d) {
 			return yRange(d.y);
 		})
-  		.interpolate('basis');
+        .curve(d3.curveNatural);
 		
 
 	var lineDataIdeal = [{
