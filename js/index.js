@@ -1,18 +1,21 @@
 $(function () {
-
     initChart();
-
 });
 
 function initChart() {
 
-    var availableHours = 200;
-    var plannedHours = 154;
+    let days = ['E', 'T', 'K', 'N', 'R', 'E', 'K', 'N', 'R'];
 
-    var availableDays = 8;
-    var plannedDays = calculatePlannedDays(plannedHours, availableHours, availableDays);
+    let availableHours = 200;
+    let plannedHours = 154;
 
-    var lineDataActual = [{
+    let availableDays = days.length - 1; //   starts with 0
+    let plannedDays = calculatePlannedDays(plannedHours, availableHours, availableDays);
+
+    let lineDataAvailable = [{'x': 0, 'y': availableHours}, {'x': availableDays, 'y': 0}];
+    let lineDataPlanned = [{'x': 0, 'y': plannedHours}, {'x': plannedDays, 'y': 0}];
+
+    let lineDataActual = [{
         'x': 0,
         'y': plannedHours
     }, {
@@ -38,7 +41,7 @@ function initChart() {
         'y': 20
     }];
 
-    var svg = d3.select("#visualisation"),
+    let svg = d3.select("#visualisation"),
         width = 1000,
         height = 500,
         margins = {
@@ -48,28 +51,38 @@ function initChart() {
             left: 80
         },
 
-        xRange = d3.scaleLinear().range([margins.left, width - margins.right]).domain([
-            0, availableDays
-        ]),
+        xRange = d3.scaleLinear()
+            .range([margins.left, width - margins.right])
+            .domain([0, availableDays]),
 
-        yRange = d3.scaleLinear().range([height - margins.top, margins.bottom]).domain([
-            0, calculateMaxY(plannedHours, availableHours)
-        ]),
+        yRange = d3.scaleLinear()
+            .range([height - margins.top, margins.bottom])
+            .domain([0, calculateMaxY(plannedHours, availableHours)]),
 
-        xAxis = d3.axisBottom(xRange);
+        xAxis = d3.axisBottom(xRange).ticks(availableDays).tickFormat(function (d) {
+            return days[d]
+        }),
+        yAxis = d3.axisLeft(yRange);
 
-    yAxis = d3.axisLeft(yRange);
+    let lineFunc = d3.line()
+        .x(function (d) {
+            return xRange(d.x);
+        })
+        .y(function (d) {
+            return yRange(d.y);
+        })
+        .curve(d3.curveNatural);
 
-    function make_x_axis() {
+    function generateAxisX() {
         return d3.axisBottom(xRange)
     }
 
-    function make_y_axis() {
+    function generateAxisY() {
         return d3.axisLeft(yRange)
     }
 
-    function calculateMaxY(plannedHours, availableHours){
-        if(plannedHours > availableHours){
+    function calculateMaxY(plannedHours, availableHours) {
+        if (plannedHours > availableHours) {
             return plannedHours;
         }
         return availableHours;
@@ -85,7 +98,7 @@ function initChart() {
     svg.append("g")
         .attr("class", "grid")
         .attr("transform", "translate(0," + (height - margins.top) + ")")
-        .call(make_x_axis()
+        .call(generateAxisX()
             .tickSize((-height) + (margins.top + margins.bottom), 0, 0)
             .tickFormat("")
         );
@@ -93,7 +106,7 @@ function initChart() {
     svg.append("g")
         .attr("class", "grid")
         .attr("transform", "translate(" + (margins.left) + ",0)")
-        .call(make_y_axis()
+        .call(generateAxisY()
             .tickSize((-width) + (margins.right + margins.left), 0, 0)
             .tickFormat("")
         );
@@ -108,32 +121,6 @@ function initChart() {
         .attr("transform", "translate(" + (margins.left) + ",0)")
         .call(yAxis);
 
-
-    var lineFunc = d3.line()
-        .x(function (d) {
-            return xRange(d.x);
-        })
-        .y(function (d) {
-            return yRange(d.y);
-        })
-        .curve(d3.curveNatural);
-
-    var lineDataPlanned = [{
-        'x': 0,
-        'y': plannedHours
-    }, {
-        'x': plannedDays,
-        'y': 0
-    }];
-
-    var lineDataAvailable = [{
-        'x': 0,
-        'y': availableHours
-    }, {
-        'x': availableDays,
-        'y': 0
-    }];
-
     svg.append("svg:path")
         .attr("d", lineFunc(lineDataAvailable))
         .attr("class", "available");
@@ -144,22 +131,37 @@ function initChart() {
 
     svg.append("svg:path")
         .attr("d", lineFunc(lineDataActual))
-        .attr("class", "actual");
+        .attr("class", "actual")
+    ;
 
-    svg.append("text")
-        .attr("class", "x label")
-        .attr("text-anchor", "end")
-        .attr("x", width)
-        .attr("y", height - 6)
-        .text("Days");
+    svg.selectAll(".dot")
+        .data(lineDataActual)
+        .enter()
+        .append("text")
+        .attr("x", function (d, i) {
+            return xRange(i) + 5
+        })
+        .attr("y", function (d) {
+            return yRange(d.y) - 5
+        })
+        .text(function (d) {
+            return d.y;
+        })
 
-    svg.append("text")
-        .attr("class", "y label")
-        .attr("text-anchor", "end")
-        .attr("y", 6)
-        .attr("dy", ".75em")
-        .attr("transform", "rotate(-90)")
-        .text("Hours remaining");
+    // svg.append("text")
+    //     .attr("class", "x label")
+    //     .attr("text-anchor", "end")
+    //     .attr("x", width)
+    //     .attr("y", height - 6)
+    //     .text("Days");
+    //
+    // svg.append("text")
+    //     .attr("class", "y label")
+    //     .attr("text-anchor", "end")
+    //     .attr("y", 6)
+    //     .attr("dy", ".75em")
+    //     .attr("transform", "rotate(-90)")
+    //     .text("Hours remaining");
 
 
 }
